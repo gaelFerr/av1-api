@@ -1,104 +1,39 @@
-# AV1 API - Node.js + TypeScript
+# AV2 - API REST (Node.js + TypeScript)
 
-API REST desenvolvida para a atividade AV1, com 3 CRUDs completos (Categoria, Produto e Cliente), validação de dados com Zod e persistência com Prisma + SQLite.
+API da loja usada pelo aplicativo React Native (repositório do app: https://github.com/gaelFerr/av2-app).
 
-## Tecnologias utilizadas
+## Tecnologias
+Node.js, TypeScript, Express, Prisma ORM, SQLite, Zod (validação), JWT (autenticação), bcryptjs (senha criptografada).
 
-- Node.js
-- TypeScript
-- Express
-- Prisma ORM
-- SQLite
-- Zod (validação de schemas)
-
-## Como rodar o projeto
-
-### Pré-requisitos
-- Node.js instalado (versão 18 ou superior)
-
-### Passo a passo
-
-1. Clone o repositório:
-```bash
+## Como rodar
+```
 git clone https://github.com/gaelFerr/av1-api.git
 cd av1-api
-```
-
-2. Instale as dependências:
-```bash
 npm install
-```
-
-3. Gere o Prisma Client:
-```bash
 npx prisma generate
-```
-
-4. Rode o servidor:
-```bash
 npm run dev
 ```
+O servidor inicia em http://localhost:3000. O banco SQLite (`prisma/dev.db`) e o arquivo `.env` (com `JWT_SECRET`) já estão no repositório, então não é preciso configurar nada.
 
-O servidor vai rodar em `http://localhost:3000`.
+## Autenticação (JWT)
+1. Criar usuário: `POST /auth/cadastro` com `{ "nome": "...", "email": "...", "senha": "123456" }`
+2. Login: `POST /auth/login` com `{ "email": "...", "senha": "..." }` → retorna `{ "token": "..." }`
+3. Nas demais rotas, enviar o header `Authorization: Bearer <token>` (no Postman: aba Authorization → Bearer Token).
 
-> O banco de dados SQLite (`dev.db`) já está incluído no repositório com as tabelas criadas, não sendo necessário rodar migrations novamente.
+O token vale 1 dia. Sem token, a API responde 401.
 
-## Endpoints disponíveis
+## Rotas (todas protegidas, exceto /auth)
+Cada recurso tem: `GET /recurso`, `GET /recurso/:id`, `POST /recurso`, `PUT /recurso/:id`, `DELETE /recurso/:id`.
 
-### Categoria
-| Método | Rota | Descrição |
+| Recurso | Campos | Relação |
 |---|---|---|
-| GET | /categorias | Lista todas as categorias |
-| GET | /categorias/:id | Busca uma categoria pelo ID |
-| POST | /categorias | Cria uma nova categoria |
-| PUT | /categorias/:id | Atualiza uma categoria existente |
-| DELETE | /categorias/:id | Remove uma categoria |
+| /categorias | nome | - |
+| /produtos | nome, preco, categoriaId | pertence a uma Categoria |
+| /clientes | nome, email, telefone | - |
+| /pedidos | quantidade, clienteId, produtoId | liga Cliente e Produto |
 
-### Produto
-| Método | Rota | Descrição |
-|---|---|---|
-| GET | /produtos | Lista todos os produtos (com dados da categoria) |
-| GET | /produtos/:id | Busca um produto pelo ID |
-| POST | /produtos | Cria um novo produto |
-| PUT | /produtos/:id | Atualiza um produto existente |
-| DELETE | /produtos/:id | Remove um produto |
+## Validação
+Todos os corpos de requisição são validados com Zod. Dados inválidos retornam 400 com a lista de erros.
 
-### Cliente
-| Método | Rota | Descrição |
-|---|---|---|
-| GET | /clientes | Lista todos os clientes |
-| GET | /clientes/:id | Busca um cliente pelo ID |
-| POST | /clientes | Cria um novo cliente |
-| PUT | /clientes/:id | Atualiza um cliente existente |
-| DELETE | /clientes/:id | Remove um cliente |
-
-## Exemplo de corpo de requisição (POST/PUT)
-
-**Categoria:**
-```json
-{
-  "nome": "Eletrônicos"
-}
-```
-
-**Produto:**
-```json
-{
-  "nome": "Notebook Dell",
-  "preco": 3500.00,
-  "estoque": 10,
-  "categoriaId": 1
-}
-```
-
-**Cliente:**
-```json
-{
-  "nome": "Maria Silva",
-  "email": "maria@email.com",
-  "telefone": "24999998888"
-}
-```
-
-## Autores
-- [Gabriel Ferreira Matheus Antunes \ AMANDA MORAES SPINOZZI KOPP JANTSCH \ Ian Baptista Correa]
+## Observação sobre exclusão
+Para apagar uma categoria, apague antes os produtos dela; para apagar um produto, apague antes os pedidos dele (ordem: pedido → produto → categoria).
