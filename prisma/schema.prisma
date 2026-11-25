@@ -23,6 +23,7 @@ model Produto {
   estoque     Int
   categoriaId Int
   categoria   Categoria @relation(fields: [categoriaId], references: [id])
+  pedidos     Pedido[]
   criadoEm    DateTime  @default(now())
 }
 
@@ -31,5 +32,24 @@ model Cliente {
   nome     String
   email    String   @unique
   telefone String?
+  pedidos  Pedido[]
   criadoEm DateTime @default(now())
+}
+
+model Usuario {
+  id       Int      @id @default(autoincrement())
+  nome     String
+  email    String   @unique
+  senha    String
+  criadoEm DateTime @default(now())
+}
+
+model Pedido {
+  id         Int      @id @default(autoincrement())
+  quantidade Int
+  clienteId  Int
+  produtoId  Int
+  cliente    Cliente  @relation(fields: [clienteId], references: [id])
+  produto    Produto  @relation(fields: [produtoId], references: [id])
+  criadoEm   DateTime @default(now())
 }

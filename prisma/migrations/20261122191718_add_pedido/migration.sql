@@ -1,0 +1,10 @@
+-- CreateTable
+CREATE TABLE "Pedido" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "quantidade" INTEGER NOT NULL,
+    "clienteId" INTEGER NOT NULL,
+    "produtoId" INTEGER NOT NULL,
+    "criadoEm" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Pedido_clienteId_fkey" FOREIGN KEY ("clienteId") REFERENCES "Cliente" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Pedido_produtoId_fkey" FOREIGN KEY ("produtoId") REFERENCES "Produto" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
